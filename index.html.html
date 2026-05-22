@@ -1,0 +1,244 @@
+
+<h2 class="sr-only">46MW中規模DC・自前火力発電所（60MW）完全自給シミュレーション</h2>
+<style>
+* { box-sizing: border-box; }
+.s { font-family: var(--font-sans); color: var(--color-text-primary); padding: 1rem 0 2rem; }
+.sec { font-size: 12px; font-weight: 500; color: var(--color-text-secondary); letter-spacing: 0.05em; text-transform: uppercase; margin: 1.5rem 0 10px; border-bottom: 0.5px solid var(--color-border-tertiary); padding-bottom: 6px; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 6px; }
+.card { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 11px 13px; }
+.card-lbl { font-size: 11px; color: var(--color-text-secondary); margin: 0 0 3px; }
+.card-val { font-size: 19px; font-weight: 500; margin: 0; line-height: 1.25; }
+.card-sub { font-size: 11px; color: var(--color-text-tertiary); margin: 2px 0 0; }
+.card.pos .card-val { color: var(--color-text-success); }
+.card.neg .card-val { color: var(--color-text-danger); }
+.card.warn .card-val { color: var(--color-text-warning); }
+.card.neu .card-val { color: var(--color-text-primary); }
+.sr { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.sl { font-size: 12px; color: var(--color-text-secondary); min-width: 200px; }
+.so { font-size: 12px; font-weight: 500; min-width: 90px; text-align: right; }
+.verdict { border-left: 3px solid; border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0; padding: 10px 14px; margin: 14px 0 0; font-size: 13px; line-height: 1.6; }
+.verdict.ok { border-color: #1D9E75; background: var(--color-background-success); color: var(--color-text-success); }
+.verdict.warn { border-color: #BA7517; background: var(--color-background-warning); color: var(--color-text-warning); }
+.verdict.ng { border-color: #E24B4A; background: var(--color-background-danger); color: var(--color-text-danger); }
+.lgd { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 8px; font-size: 12px; color: var(--color-text-secondary); }
+.lgd span { display: flex; align-items: center; gap: 5px; }
+.ld { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+.note { font-size: 11px; color: var(--color-text-tertiary); margin-top: 14px; line-height: 1.7; }
+.tbl { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 10px; }
+.tbl th { text-align: left; font-weight: 500; color: var(--color-text-secondary); padding: 5px 8px; border-bottom: 0.5px solid var(--color-border-tertiary); }
+.tbl td { padding: 5px 8px; border-bottom: 0.5px solid var(--color-border-tertiary); vertical-align: top; }
+.tbl td:last-child { text-align: right; color: var(--color-text-secondary); font-size: 11px; }
+.tbl tr:last-child td { border-bottom: none; }
+.fixed-badge { display: inline-block; font-size: 10px; padding: 1px 6px; border-radius: 4px; background: var(--color-background-secondary); color: var(--color-text-secondary); margin-left: 6px; vertical-align: middle; }
+</style>
+
+<div class="s">
+
+<div class="sec">固定前提 <span class="fixed-badge">変更不可</span></div>
+<div class="cards">
+  <div class="card neu"><p class="card-lbl">DCの電力（ITロード）</p><p class="card-val">46 MW</p><p class="card-sub">総務省・経産省 2024年</p></div>
+  <div class="card neu"><p class="card-lbl">実消費電力（PUE 1.3）</p><p class="card-val">60 MW</p><p class="card-sub">業界標準PUE適用</p></div>
+  <div class="card neu"><p class="card-lbl">DC稼働率</p><p class="card-val">100 %</p><p class="card-sub">常時最大稼働</p></div>
+  <div class="card neu"><p class="card-lbl">火力発電出力</p><p class="card-val">60 MW</p><p class="card-sub">DC実消費を完全自給</p></div>
+  <div class="card neg"><p class="card-lbl">DC建設費</p><p class="card-val">1,012億円</p><p class="card-sub">2,200万円/MW × 46MW</p></div>
+  <div class="card neg"><p class="card-lbl">火力発電所建設費</p><p class="card-val">150億円</p><p class="card-sub">25万円/kW × 60,000kW</p></div>
+  <div class="card neg"><p class="card-lbl">初期投資 合計</p><p class="card-val">1,162億円</p><p class="card-sub">DC＋火力</p></div>
+  <div class="card neu"><p class="card-lbl">DCラック数</p><p class="card-val">6,571台</p><p class="card-sub">46,000kW ÷ 7kW/台</p></div>
+</div>
+
+<div class="sec">調整可能パラメータ</div>
+
+<div class="sr">
+  <span class="sl">コロケーション単価（万円/ラック/年）</span>
+  <input type="range" id="sl-rev" min="120" max="360" step="10" value="200" style="flex:1">
+  <span class="so" id="out-rev">200 万円</span>
+</div>
+<div class="sr">
+  <span class="sl">LNG燃料費（円/kWh 発電量ベース）</span>
+  <input type="range" id="sl-fuel" min="4" max="12" step="0.5" value="7" style="flex:1">
+  <span class="so" id="out-fuel">7.0 円/kWh</span>
+</div>
+<div class="sr">
+  <span class="sl">DC維持費率（建設費に対する年率 %）</span>
+  <input type="range" id="sl-opex" min="2" max="7" step="0.5" value="4" style="flex:1">
+  <span class="so" id="out-opex">4.0 %</span>
+</div>
+<div class="sr">
+  <span class="sl">シミュレーション期間（年）</span>
+  <input type="range" id="sl-yr" min="10" max="40" step="1" value="25" style="flex:1">
+  <span class="so" id="out-yr">25 年</span>
+</div>
+
+<div class="sec">年間収支</div>
+<div class="cards" id="annual-cards"></div>
+
+<div class="sec">累積キャッシュフロー（億円）</div>
+<div class="lgd">
+  <span><span class="ld" style="background:#1D9E75;"></span>年間収益（棒）</span>
+  <span><span class="ld" style="background:#D85A30;"></span>年間コスト計（棒）</span>
+  <span><span class="ld" style="background:#378ADD;"></span>累積損益（折れ線）</span>
+</div>
+<div style="position:relative;width:100%;height:300px;">
+  <canvas id="chart" role="img" aria-label="46MW中規模DC・自前火力発電所の累積キャッシュフロー推移">累積キャッシュフローのグラフ</canvas>
+</div>
+<div id="verdict-box"></div>
+
+<div class="sec">年次収支明細</div>
+<div style="overflow-x:auto;">
+  <table class="tbl" id="detail-tbl">
+    <thead>
+      <tr>
+        <th>年</th>
+        <th>収益（億円）</th>
+        <th>燃料費（億円）</th>
+        <th>DC維持費（億円）</th>
+        <th>火力維持費（億円）</th>
+        <th>年間純利益（億円）</th>
+        <th>累積損益（億円）</th>
+      </tr>
+    </thead>
+    <tbody id="tbl-body"></tbody>
+  </table>
+</div>
+
+<div class="sec">前提数値と出所</div>
+<table class="tbl">
+  <thead><tr><th>項目</th><th>値</th><th>出所</th></tr></thead>
+  <tbody>
+    <tr><td>DC建設費単価</td><td>2,200百万円/MW（2023年実績）</td><td style="text-align:left">インプレス「DC調査報告書2024」／総務省「デジタルインフラ有識者会合 第7回」2024年5月</td></tr>
+    <tr><td>LNG火力建設費単価</td><td>25万円/kW</td><td style="text-align:left">資源エネルギー庁「発電コスト検証WG」2021年；IEEJ 2015年公表値</td></tr>
+    <tr><td>LNG火力年間維持費</td><td>4.3億円（規模比例換算）</td><td style="text-align:left">資源エネルギー庁「今後の火力政策について」2023年3月（50万kW=36億円/年より換算）</td></tr>
+    <tr><td>LNG燃料費（デフォルト）</td><td>7円/kWh（発電量ベース）</td><td style="text-align:left">資源エネルギー庁「発電コスト検証とりまとめ」2025年2月（LNG火力LCOE 10.7円〜のうち燃料費相当を抽出）</td></tr>
+    <tr><td>DC収益単価（業界一般値）</td><td>120〜360万円/ラック/年</td><td style="text-align:left">国内コロケーション市場一般値</td></tr>
+    <tr><td>ラック電力密度</td><td>7kW/ラック</td><td style="text-align:left">総務省「デジタルインフラ有識者会合 第7回」2024年5月</td></tr>
+    <tr><td>DC稼働率</td><td>100%（本シミュレーションの固定前提）</td><td style="text-align:left">ユーザー指定</td></tr>
+    <tr><td>DC維持費構造</td><td>建設費に対する年率2〜7%（スライダー）</td><td style="text-align:left">総務省「DC利用に関する調査研究」2010年の費用構造より推計</td></tr>
+  </tbody>
+</table>
+
+<div class="note">
+  ※ 電力は自前の火力発電所で100%賄う前提のため、外部電力購入コストはゼロ。燃料費（LNG調達コスト）のみ計上。<br>
+  ※ TCDD処理コスト・排ガス処理設備・特殊許認可費用は含まない。これらを加算すると初期投資・維持費は増加する。<br>
+  ※ 電力売電収益は計上していない（DCの自家消費で全量使用と仮定）。<br>
+  ※ 法人税・減価償却・金利は含まない（単純キャッシュフローベース）。
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+
+const RACKS = 6571;
+const DC_CAPEX = 1012;
+const PP_CAPEX = 150;
+const TOTAL_CAPEX = DC_CAPEX + PP_CAPEX;
+const PP_MW = 60;
+const PP_KWH_YEAR = PP_MW * 1000 * 8760;
+const PP_OPEX_Y = 4.3;
+
+let chart = null;
+
+function f1(v) { return v.toFixed(1); }
+function f0(v) { return Math.round(v).toLocaleString(); }
+
+function run() {
+  const revPerRack = +$('sl-rev').value;
+  const fuelYen = +$('sl-fuel').value;
+  const opexRate = +$('sl-opex').value / 100;
+  const years = +$('sl-yr').value;
+
+  $('out-rev').textContent = revPerRack + ' 万円';
+  $('out-fuel').textContent = fuelYen.toFixed(1) + ' 円/kWh';
+  $('out-opex').textContent = (+$('sl-opex').value).toFixed(1) + ' %';
+  $('out-yr').textContent = years + ' 年';
+
+  const dcRevY = (RACKS * revPerRack) / 10000;
+  const fuelCostY = (PP_KWH_YEAR * fuelYen) / 1e8;
+  const dcOpexY = DC_CAPEX * opexRate;
+  const ppOpexY = PP_OPEX_Y;
+  const totalCostY = fuelCostY + dcOpexY + ppOpexY;
+  const netY = dcRevY - totalCostY;
+
+  $('annual-cards').innerHTML = `
+    <div class="card pos"><p class="card-lbl">DC年間収益</p><p class="card-val">${f1(dcRevY)}億円</p><p class="card-sub">6,571台×${revPerRack}万円×100%</p></div>
+    <div class="card neg"><p class="card-lbl">LNG燃料費（年）</p><p class="card-val">${f1(fuelCostY)}億円</p><p class="card-sub">${fuelYen}円/kWh×60MW×8,760h</p></div>
+    <div class="card neg"><p class="card-lbl">DC維持費（年）</p><p class="card-val">${f1(dcOpexY)}億円</p><p class="card-sub">1,012億円×${(opexRate*100).toFixed(1)}%</p></div>
+    <div class="card neg"><p class="card-lbl">火力維持費（年）</p><p class="card-val">${f1(ppOpexY)}億円</p><p class="card-sub">36億円/50万kW換算</p></div>
+    <div class="card neg"><p class="card-lbl">年間コスト 合計</p><p class="card-val">${f1(totalCostY)}億円</p><p class="card-sub">燃料＋DC維持＋火力維持</p></div>
+    <div class="card ${netY>=0?'pos':'neg'}"><p class="card-lbl">年間純利益</p><p class="card-val">${netY>=0?'+':''}${f1(netY)}億円</p><p class="card-sub">収益 − コスト合計</p></div>
+  `;
+
+  const labels = Array.from({length: years}, (_, i) => `${i+1}年`);
+  const revArr = labels.map(() => Math.round(dcRevY * 10) / 10);
+  const costArr = labels.map(() => Math.round(totalCostY * 10) / 10);
+  const cumArr = [];
+  let cum = -TOTAL_CAPEX;
+  for (let i = 0; i < years; i++) {
+    cum += netY;
+    cumArr.push(Math.round(cum * 10) / 10);
+  }
+
+  const beYear = netY > 0 ? Math.ceil(TOTAL_CAPEX / netY) : Infinity;
+
+  if (chart) { chart.destroy(); chart = null; }
+  chart = new Chart($('chart'), {
+    data: {
+      labels,
+      datasets: [
+        { type: 'bar', label: '年間収益', data: revArr, backgroundColor: '#1D9E75', borderRadius: 2, yAxisID: 'y' },
+        { type: 'bar', label: '年間コスト', data: costArr.map(v => -v), backgroundColor: '#D85A30', borderRadius: 2, yAxisID: 'y' },
+        { type: 'line', label: '累積損益', data: cumArr, borderColor: '#378ADD', borderWidth: 2, borderDash: [0,0], pointRadius: 2, tension: 0.3, backgroundColor: 'transparent', yAxisID: 'y1' }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { autoSkip: true, maxTicksLimit: 12, font: { size: 11 } } },
+        y: { position: 'left', title: { display: true, text: '単年（億円）', font: { size: 11 } }, ticks: { font: { size: 11 }, callback: v => v.toLocaleString() } },
+        y1: { position: 'right', title: { display: true, text: '累積（億円）', font: { size: 11 } }, grid: { drawOnChartArea: false }, ticks: { font: { size: 11 }, callback: v => v.toLocaleString() } }
+      }
+    }
+  });
+
+  let vClass, vMsg;
+  if (netY < 0) {
+    vClass = 'ng';
+    vMsg = `年間純利益がマイナス（${f1(netY)}億円/年）。どれだけ期間を延ばしても回収不能。収益単価の大幅引き上げが必要。`;
+  } else if (beYear > 30) {
+    vClass = 'ng';
+    vMsg = `損益分岐点は約${beYear}年目。設備の耐用年数（一般に20〜30年）を超えるため事実上回収不能。`;
+  } else if (beYear > 20) {
+    vClass = 'warn';
+    vMsg = `損益分岐点は約${beYear}年目。${years}年間累積損益：${f1(cumArr[years-1])}億円。長期だが回収の目処はある。`;
+  } else if (beYear > 0) {
+    vClass = 'ok';
+    vMsg = `損益分岐点は約${beYear}年目。${years}年間累積損益：${f1(cumArr[years-1])}億円。`;
+  } else {
+    vClass = 'warn';
+    vMsg = '計算エラー';
+  }
+  $('verdict-box').innerHTML = `<div class="verdict ${vClass}">${vMsg}</div>`;
+
+  const tbody = $('tbl-body');
+  const showYears = [1,2,3,5,8,10,15,20,25,30,35,40].filter(y => y <= years);
+  tbody.innerHTML = showYears.map(y => {
+    const cumV = Math.round((-TOTAL_CAPEX + netY * y) * 10) / 10;
+    const cls = cumV >= 0 ? 'color:var(--color-text-success)' : 'color:var(--color-text-danger)';
+    const netCls = netY >= 0 ? 'color:var(--color-text-success)' : 'color:var(--color-text-danger)';
+    return `<tr>
+      <td style="font-weight:500">${y}年目</td>
+      <td>${f1(dcRevY)}</td>
+      <td>${f1(fuelCostY)}</td>
+      <td>${f1(dcOpexY)}</td>
+      <td>${f1(ppOpexY)}</td>
+      <td style="${netCls}">${netY>=0?'+':''}${f1(netY)}</td>
+      <td style="${cls};font-weight:500">${cumV>=0?'+':''}${f1(cumV)}</td>
+    </tr>`;
+  }).join('');
+}
+
+['sl-rev','sl-fuel','sl-opex','sl-yr'].forEach(id => $(id).addEventListener('input', run));
+run();
+</script>
