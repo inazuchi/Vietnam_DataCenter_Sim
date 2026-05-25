@@ -59,8 +59,8 @@ input[type=range] { flex: 1; accent-color: #378ADD; }
 
 
 <div class="cards" id="derived-cards">
-    <div class="card neu"><p class="card-lbl">DCの設計電力</p><p class="card-val">46.0 MW</p><p class="card-sub">6,571台 × 7kW</p></div>
-    <div class="card neu"><p class="card-lbl">実消費電力（PUE 1.3）</p><p class="card-val">59.8 MW</p><p class="card-sub">設計電力 × 1.3</p></div>
+    <div class="card neu"><p class="card-lbl">DCの電力（ITロード）</p><p class="card-val">46.0 MW</p><p class="card-sub">6,571台 × 7kW</p></div>
+    <div class="card neu"><p class="card-lbl">実消費電力（PUE 1.3）</p><p class="card-val">59.8 MW</p><p class="card-sub">ITロード × 1.3</p></div>
     <div class="card neu"><p class="card-lbl">発電所出力</p><p class="card-val">59.8 MW</p><p class="card-sub">実消費と同値</p></div>
     <div class="card neg"><p class="card-lbl">DC建設費</p><p class="card-val">1011.9 億円</p><p class="card-sub">2,200百万円/MW × 46.0MW</p></div>
     <div class="card neg"><p class="card-lbl">発電所建設費</p><p class="card-val">149.5 億円</p><p class="card-sub">25万円/kW × 59,796kW</p></div>
@@ -79,12 +79,12 @@ input[type=range] { flex: 1; accent-color: #378ADD; }
       <span class="so" id="out-racks">6,571 台</span>
     </div>
     <div class="sr">
-      <span class="sl">DC建設費単価（百万円/MW）
+      <span class="sl">DC建設費単価（百万円/MW）<small>→ DC建設費に連動</small></span>
       <input type="range" id="sl-dc-unit" min="1000" max="4000" step="100" value="2200">
       <span class="so" id="out-dc-unit">2,200 百万円/MW</span>
     </div>
     <div class="sr">
-      <span class="sl">火力発電所建設費単価（万円/kW）
+      <span class="sl">火力発電所建設費単価（万円/kW）<small>→ 発電所建設費に連動</small></span>
       <input type="range" id="sl-pp-unit" min="10" max="50" step="1" value="25">
       <span class="so" id="out-pp-unit">25 万円/kW</span>
     </div>
